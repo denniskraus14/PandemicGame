@@ -576,8 +576,8 @@ def draw_two():
     global turn
     global cdeck_discard
 
-    card1 = city_deck.pop()
-    card2 = city_deck.pop()
+    card1 = city_deck.pop(0)
+    card2 = city_deck.pop(0)
     print(players[turn]["name"],"drew",card1+"!")
     print(players[turn]["name"],"drew",card2+"!")
     
@@ -1003,6 +1003,8 @@ time.sleep(2)
 #
 
 turn = who_is_first()
+city_deck[0]="Epidemic"
+city_deck[1]="Epidemic"
 #while you have not yet lost
 while outbreaks<8 and len(cdeck)>=0 and diseases['black']['cubes']>=0 and diseases['blue']['cubes']>=0 and diseases['red']['cubes']>=0 and diseases['yellow']['cubes']>=0:
     actions = 4
