@@ -1,7 +1,7 @@
 import networkx as nx
 import random
 import time
-import matplotlib as plt
+import matplotlib.pyplot  as plt
 import copy
 #nick says use pygame
 
@@ -486,6 +486,42 @@ def goto_research_station():
 def eventcard():
     return True
 
+def moved_via_dispatch():
+    global players
+    if players[turn]['role']!="Dispatcher":
+        return False
+    print("Which player would like to move?")
+    for player in players:
+        print(player, "("+players[player]['name'],"the",players[player]['role'],"in",players[player]['location']+")")
+    try:
+        choice = int(input())
+        if choice in players and players[choice]['role']!="Dispatcher":
+            current = players[choice]['location']
+            connections = list(network.neighbors(current))
+            print("connections", connections)
+            print("Where would you like to walk to?")
+            i=1
+            for connection in connections:
+                print(i,connection)
+                i+=1
+            try:
+                choice2 = int(input())
+                if choice2>=1 and choice2 < i:
+                    players[choice]['location'] = connections[choice2-1]
+                    return True
+                else:
+                    print("Not a valid move")
+                    return False
+            except ValueError:
+                print("Not a valid move")
+                return False
+        else:
+            return False
+    except:
+        print("except")
+        return False
+
+    
 def pawn_to_pawn():
     global players
     print("Which player would you like to move?")
@@ -531,8 +567,8 @@ def display_cubes():
             print(acc)
                     
 def display_board():
-    print("I am displaying the board")
-    return False #not an action
+    nx.draw(network)
+    plt.show()
 
 def draw_two():
     global city_deck
