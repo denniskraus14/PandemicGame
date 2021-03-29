@@ -614,7 +614,10 @@ def resolve_epidemic():
 
 def resolve_double_epidemic():
     print("This test probably won't happen for a while")
-    pass
+    #does it just get called twice?
+    resolve_epidemic()
+    resolve_epidemic()
+    
 
 def resolve_hand_limits():
     global players
