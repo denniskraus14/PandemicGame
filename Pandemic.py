@@ -687,7 +687,10 @@ def store_card():
     
 def display_cards():
     for player in players:
-        print(players[player]['name']+"'s cards:", players[player]['cards'])
+        if players[player]['role']=='Contingency Planner':
+            print(players[player]['name']+"'s cards:", players[player]['cards'],"Stored Card:",players[player]['StoredCard'])
+        else:
+            print(players[player]['name']+"'s cards:", players[player]['cards'])
     return False #not an action
 
 def display_cubes():
@@ -1140,7 +1143,6 @@ time.sleep(2)
 #
 #main game loop
 #
-city_deck[0]="Forecast"
 quiet_night=False
 turn = who_is_first()
 #while you have not yet lost
