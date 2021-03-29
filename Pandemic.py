@@ -122,6 +122,7 @@ def menu():
         print("10 Discard a Card To Travel to Any City (Operations Expert)")
     elif players[turn]['role']=="Contingency Planner":
         print("10 Store an Event Card from the Discard Pile (Contingency Planner)")
+    print("e Play an Event Card")
     print("c Display Cards")
     print("f Display Cubes")
     print("d Display Board")
@@ -136,7 +137,7 @@ def is_valid_action(action):
         else:
             return False
     except:
-        return action=="d" or action=="c" or action=="f"
+        return action=="d" or action=="c" or action=="f" or action=="e"
 
 def resolve_action(action):
     if action=="1":
@@ -174,6 +175,8 @@ def resolve_action(action):
         return display_cubes()
     elif action=="d":
         return display_board()
+    elif action=="e":
+        return eventcard()
     else:
         return False
 
@@ -483,8 +486,25 @@ def goto_research_station():
         return False
     return True
 
-def eventcard():
-    return True
+def eventcard(): #functions for each event card? some are simple. One Quiet Night is least simple
+    global players
+    global cdeck_discard
+    choice = input("Which event card would you like to play?")
+    if choice in events:
+        for player in players:
+            if players[player]['role']=='Contingency Planner' and players[player]['StoredCard']==choice:
+                #spend it and throw it from game
+                players[player]['StoredCard']=""
+                #do the ability
+                return True
+            if choice in players[player]['cards']:
+                #spend it and put it in cdeck_discard
+                players[player]['cards'].remove(choice)
+                cdeck_discard.append(choice)
+                return True
+        return False
+    return False
+    
 
 def moved_via_dispatch():
     global players
@@ -573,6 +593,21 @@ def opsExpert_teleport():
             return False
     return False
         
+def store_card():
+    global players
+    global cdeck_discard
+    if players[turn]['StoredCard']=='':
+        print("Which card would you like to store?")
+        for card in cdeck_discard:
+            if card in events:
+                print(card)
+        choice = input()
+        if choice in events and choice in cdeck_discard:
+            players[turn]['StoredCard'] = choice
+            cdeck_discard.remove(choice)
+            return True
+        return False
+    return False
     
 def display_cards():
     for player in players:
@@ -996,9 +1031,12 @@ while i <=temp:
         time.sleep(.5)
         name = input()
     players[i] = {"name":name, "role": role, "location":"Atlanta"}
+    if role=="Contingency Planner":
+        players[i]["StoredCard"] = "" #this is how we will keep track of stored event cards. once reused, toss them from the game
     print(name,"is the",role+"!")
     time.sleep(1)
     i+=1
+    
 print()
 
 #the dealing to the players has to go here before the decks are determined
