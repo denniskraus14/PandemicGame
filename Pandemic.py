@@ -87,7 +87,6 @@ def pregame_infect_deck_prep():
     while i>0:
         while j<3:
             city = random.choice(ideck)
-            print(city,"has been infected with",i,cities[city]["color"],"cubes!")
             place_cubes(city,i,cities[city]['color'])
             ideck.remove(city)
             infect_deck_discard.append(city)
@@ -747,7 +746,6 @@ def resolve_epidemic():
     infected = infect_deck[-1] 
     infect_deck = infect_deck[:-1]
     infect_deck_discard.append(infected)
-    print(infected,"has been infected with 3 cubes!")
     place_cubes(infected,3, cities[infected]['color']) #put 3 cubes on last card
     reshuffle()
 
@@ -790,7 +788,6 @@ def infect():
     i=0
     while i<card_counter[card_counter_index]:
         infected = infect_deck.pop(0)
-        print(infected,"has been infected with 1",cities[infected]['color'],"cube!")
         time.sleep(1)
         place_cubes(infected,1,cities[infected]['color'])
         infect_deck_discard.append(infected)
@@ -801,29 +798,39 @@ def place_cubes(city, cubes, color, outbreakchain = []):
     global cities
     global outbreaks
     global diseases
+    #print(infected,"has been infected with 3 cubes!")
     if cities[city]['cubes'][color] + cubes > 3 and cities[city]["quarantined"]==False and city not in outbreakchain:
+        print(city,"has been infected with",cubes,"cubes!")
         print("Outbreak!")
         diseases[color]['cubes']-= 3 - cities[city]['cubes'][color] #subtract the amount of cubes to get to 3
         time.sleep(1)
         outbreaks+=1
         cities[city]['cubes'][color] = 3
         resolve_outbreak(city,outbreakchain+[city], color)
+        #return True
     elif city in outbreakchain:
-        pass #break the chain
+        pass
+        #return True #break the chain
+    elif cities[city]['quarantined']==True:
+        print("Quarantine Specialist blocked",cubes,"cube(s) on",city+"!")
+        #return False #do not infect
     else:
+        print(city,"has been infected with",cubes,"cubes!")
         diseases[color]['cubes'] -= cubes
         cities[city]['cubes'][color] += cubes #place the cubes
+        #return True
         
 #this function will take a city and place one cube on each unprotected neighboring city
 #need to make sure the outbreaks do not loop into each other - will do this with citylist
 def resolve_outbreak(city, outbreakchain, color):
+    global cities
     connections = nx.neighbors(network,city)
     acc=[]
     for connection in connections:
         acc.append(connection)
     print("The connections to this city are:", acc)
-    for connection in connections:
-        place_cubes(connection,1,color,outbreakchain)
+    for c in acc:
+        place_cubes(c,1,color,outbreakchain)
         
 
 #this function shuffles the infection discard pile and places it back atop the infection deck
@@ -843,6 +850,21 @@ def medic_passive(city):
             diseases[disease]['cubes']+= cities[city]['cubes'][diseases[disease]['name']] 
             cities[city]['cubes'][diseases[disease]['name']] = 0
             print("The medic cleared",city,"upon passing through!")
+
+def quarantine_passive():
+    global cities
+    for player in players:
+        if players[player]['role']=="Quarantine Specialist":
+            loc = players[player]['location']
+            connections = list(network.neighbors(loc))
+            break
+        else:
+            connections=[]
+    for city in cities:
+        if city in connections:
+            cities[city]['quarantined']=True
+        else:
+            cities[city]['quarantined']=False
     
 #this will determine the player with the lowest population. they will start the game            
 def who_is_first():
@@ -1172,6 +1194,7 @@ while outbreaks<8 and len(cdeck)>=0 and diseases['black']['cubes']>=0 and diseas
     #draw 2 city cards
     draw_two() #calls resolve_epidemic() if there is one
     resolve_hand_limits() #make sure ALL have less than 7
+    quarantine_passive()
     if not quiet_night:
         infect()     #infect cities
 
