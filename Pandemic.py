@@ -549,6 +549,31 @@ def pawn_to_pawn():
     except:
         return False
 
+def opsExpert_teleport():
+    global players
+    global cities
+    global cdeck_discard
+    hand = players[turn]['cards']
+    choice = input("Which city would you like to go to?")
+    if choice in cities:
+        print("Which card would you like to get rid of?")
+        i=1
+        for card in hand:
+           print(i, card)
+           i+=1
+        try:
+            choice2 = int(input())
+            if hand[choice2-1] in hand:
+                cdeck_discard.append(hand[choice2-1])
+                players[turn]['location']=hand[choice2-1]
+                hand.remove(hand[choice2-1])
+                return True
+            return False
+        except ValueError:
+            return False
+    return False
+        
+    
 def display_cards():
     for player in players:
         print(players[player]['name']+"'s cards:", players[player]['cards'])
@@ -1003,8 +1028,6 @@ time.sleep(2)
 #
 
 turn = who_is_first()
-city_deck[0]="Epidemic"
-city_deck[1]="Epidemic"
 #while you have not yet lost
 while outbreaks<8 and len(cdeck)>=0 and diseases['black']['cubes']>=0 and diseases['blue']['cubes']>=0 and diseases['red']['cubes']>=0 and diseases['yellow']['cubes']>=0:
     actions = 4
