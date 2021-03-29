@@ -486,25 +486,101 @@ def goto_research_station():
         return False
     return True
 
-def eventcard(): #functions for each event card? some are simple. One Quiet Night is least simple
+def eventcard(): #this is not an action, so it should not return true
     global players
     global cdeck_discard
     choice = input("Which event card would you like to play?")
-    if choice in events:
-        for player in players:
-            if players[player]['role']=='Contingency Planner' and players[player]['StoredCard']==choice:
-                #spend it and throw it from game
+    for player in players:
+        if players[player]['role']=='Contingency Planner' and players[player]['StoredCard']==choice:
+            if resolve_event(choice):
                 players[player]['StoredCard']=""
-                #do the ability
-                return True
-            if choice in players[player]['cards']:
-                #spend it and put it in cdeck_discard
-                players[player]['cards'].remove(choice)
-                cdeck_discard.append(choice)
-                return True
-        return False
+        if choice in players[player]['cards'] and resolve_event(choice):
+            players[player]['cards'].remove(choice)
+            cdeck_discard.append(choice)
     return False
     
+
+def resolve_event(event):
+    if event=="Airlift":
+        return airlift()        
+    elif event=="Resilient Population":
+        return resilient_pop()
+    elif event=="Government Grant":
+        return gov_grant()
+    elif event=="Forecast":
+        return forecast()
+    elif event=="One Quiet Night":
+        return one_quiet_night()
+
+def airlift():
+    global players
+    print("Which player would you like to move?")
+    for player in players:
+        print(player,"("+players[player]['name'],"the",players[player]['role'],"in",players[player]['location']+")")
+    try:
+        choice = int(input())
+    except:
+        return False
+    choice2 = input("Where would you like to send them to?")
+    if choice2 in cities:
+        players[choice]['location'] = choice2
+        return True
+    else:
+        return False
+
+def resilient_pop():
+    global infect_deck_discard
+    global players
+    print("Which city would you like to remove from the infect deck discard pile?")
+    for city in infect_deck_discard:
+        print(city)
+    choice = input()
+    if choice in infect_deck_discard:
+        infect_deck_discard.remove(choice)
+        return True
+    else:
+        print("Sorry that is not a valid option")
+        return False
+    
+def gov_grant():
+    global cities
+    global research_stations
+    if research_stations>=1:
+        choice = input("Which city would you like to build a research station in?")
+        if choice in cities and cities[choice]['research_station']==False:
+            cities[choice]['research_station']=True
+            research_stations-=1
+            return True
+        return False
+    return False
+
+def one_quiet_night():
+    global quiet_night
+    quiet_night=True
+    return True
+    
+def forecast():
+    global infect_deck
+    top6 = infect_deck[:6]
+    i=1
+    print("Here are the top 6 cards")
+    for card in top6:
+        print(i, card)
+        i+=1
+    newtop6=[]
+    seq = input("Type in the 6digit sequence to rearrange. First digit is topmost.")
+    for char in seq:
+        try:
+            char=int(char)
+        except:
+            print("Please only enter digits 1-6")
+            return False
+        newtop6.append(top6[char-1])
+    #replace the old top6 with the new
+    infect_deck[:5] = newtop6
+    return True
+        
+        
 
 def moved_via_dispatch():
     global players
@@ -1064,7 +1140,8 @@ time.sleep(2)
 #
 #main game loop
 #
-
+city_deck[0]="Forecast"
+quiet_night=False
 turn = who_is_first()
 #while you have not yet lost
 while outbreaks<8 and len(cdeck)>=0 and diseases['black']['cubes']>=0 and diseases['blue']['cubes']>=0 and diseases['red']['cubes']>=0 and diseases['yellow']['cubes']>=0:
@@ -1093,13 +1170,15 @@ while outbreaks<8 and len(cdeck)>=0 and diseases['black']['cubes']>=0 and diseas
     #draw 2 city cards
     draw_two() #calls resolve_epidemic() if there is one
     resolve_hand_limits() #make sure ALL have less than 7
-    infect()     #infect cities
+    if not quiet_night:
+        infect()     #infect cities
 
     #next turn
     if turn==len(players):
         turn = 1 #start the rotation over
     else:
         turn+=1 #else next person
+    quiet_night = False #reset this
         
     
 
