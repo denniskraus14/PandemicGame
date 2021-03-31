@@ -125,6 +125,7 @@ def menu():
     print("c Display Cards")
     print("f Display Cubes")
     print("d Display Board")
+    print("s Skip (No action)")
     x=input()
     return x
 
@@ -136,7 +137,7 @@ def is_valid_action(action):
         else:
             return False
     except:
-        return action=="d" or action=="c" or action=="f" or action=="e"
+        return action=="d" or action=="c" or action=="f" or action=="e" or action=="s"
 
 def resolve_action(action):
     if action=="1":
@@ -176,6 +177,8 @@ def resolve_action(action):
         return display_board()
     elif action=="e":
         return eventcard()
+    elif action=="s":
+        return True
     else:
         return False
 
