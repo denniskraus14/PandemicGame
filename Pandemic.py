@@ -983,6 +983,7 @@ network.add_edge("Algiers","Cairo")
 network.add_edge("Istanbul","Moscow")
 network.add_edge("Istanbul","Baghdad")
 network.add_edge("Istanbul","Cairo")
+network.add_edge("Istanbul","Milan")
 network.add_edge("Baghdad","Tehran")
 network.add_edge("Baghdad","Karachi")
 network.add_edge("Baghdad","Cairo")
@@ -1165,6 +1166,8 @@ print("You are ready to play!")
 print()
 time.sleep(2)
 
+for city in cities:
+    print("connections['"+city+"'] =",list(network.neighbors(city)))
 #
 #main game loop
 #
